@@ -1,0 +1,38 @@
+Solving the leetcode_1601 
+
+
+Question:-  https://leetcode.com/problems/maximum-number-of-achievable-transfer-requests/description/
+
+Thought process for solving the same 
+
+The intuition behind the solving this problem is to exhaustively explore all possible combinations of transfer requests and calculate the maximum number of achievable requests.
+
+The backtracking and recursion approach will allow us to systematically consider differenct scenarios by making choices and backtracking when needed. 
+
+Algorithm
+
+1.Iterate through the 'requests' array and process each transfer request one by one. For each request , decrement the 'transfers' array for the "from" building(indicating the employee leaving) and increment the "transfers" for the "to" building (indicating the employee moving in).
+
+2. The recursive function 'calculateAchievableRequests' is called with the current transfer request, the 'transfers' dict, and the number of achievable requests made so far.
+
+3.In each recursive call , there are two possiblities
+ a).Include the current transfer requrest: Increment the respective element in the 'transfers' dictionary and make a recursive call with the next transfer request. This represents the case where we accept the current transfer request as part of the solution.
+ b).Exclude the current transfer request: Leave the 'transfers' dict unchanged and make a recursive call with the next transfer request as the part of the solution .
+ 
+ 4.The base case of recursion is reached when all transfer requests have been processed. At this point, function checks if the current number of achievable requests is greater than previous maximum ('maximumAchievableRequest') and updated accordingly
+ 
+ 5.By, recursively exploring different combinations of the transfer requests and backtracking when necessary, the algorithm considers all possible scenarios and finds the max number of achievable requests.
+ 
+ The key idea is to maintain the 'transfers' dict to track the net change in the employee transfers for each building . By incrementing and decrementing the dictionary value appropiately during the recursion, we ensure that all transfer requests are processed correctly.
+ 
+ 
+ 
+ The core idea is either you can select a request , or not select a request
+
+
+
+
+
+
+
+
