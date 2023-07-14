@@ -23,3 +23,18 @@ Input: arr = [1,5,7,8,5,3,4,2,1], difference = -2
 Output: 4
 Explanation: The longest arithmetic subsequence is [7,5,3,1].
 
+
+Solution / Intuition /Algorithm
+
+The first thing that comes to the find is to find all the subsequences and check for the condition that the difference is  remains same in the entire subsequence , but there can be 2^n subsequences , so this is not the optimized solution .
+
+Or what we can do is traverse the entire array and select every number as starting number and then check whether a number with starting number +difference exists ... now for the next time we check whether starting number +2*difference exists or implement this logic in some other manner .
+
+
+The total number of such numbers is our required solution . The time complexity of this solution is O(n^2) . Implemented this solution in the leetcode but it is giving me time limit exceeded error.
+This signifies , either this question can be solved in O(n) or in O(nlogn)...
+
+So, we can actually find the solution in O(n) time.
+
+
+The idea is that if we assume that this is the number of AP subsequence , how many numbers occured before it  . We maintain a dictionary that stores , how many numbers are before a given number that can be considered as the subsequence part. Now we tranverse the array and maintain the dictionary .If any (number - difference) we increase the subsequence count. Also, we would be storing the maxCount as well  
