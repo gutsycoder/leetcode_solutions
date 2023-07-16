@@ -12,7 +12,7 @@ For example, team =[0,1,3] represents the people with skills people[0],people[1]
 Return any sufficient team of the smallest possible size, represented by the index of each person. You may return the answer in any order.It is guarenteed an answer exists. 
 
 
-Example 1:
+]Example 1:
 
 Input: req_skills = ["java","nodejs","reactjs"], people = [["java"],["nodejs"],["nodejs","reactjs"]]
 Output: [0,2]
@@ -20,3 +20,111 @@ Example 2:
 
 Input: req_skills = ["algorithms","math","java","reactjs","csharp","aws"], people = [["algorithms","math","java"],["algorithms","math","reactjs"],["java","csharp","aws"],["reactjs","csharp"],["csharp","math"],["aws","java"]]
 Output: [1,2]
+
+Algorithm /Intuition Behind the Solution
+
+java : [0],
+node js :[1,2]
+reactjs: [2]
+
+While traversing the req_skills we began forming a result for example for java we place 0 and then move ahead to node js then we check all the possible people with node js as skill that is we select 1 and later in the backtracking can check also 2. Now while going with 1 now we have result as 
+[0,1] . Now we move to react js , we only have 2 to choose. So the result becomes as [1,2,3] 
+It have the length of 3 . Now the min_ans is min(min_ans,len(result))
+
+Now, we backtrack, we check that react has some other candidate . No, we dont have , so let's backtrack to node js. Now we check , does node js has some other candidate . Yes we have one , let's selec that 2. 
+Now moving forwarding , react Js has also candidate of 2 . So , the result formed is [0,2] as 2 is already present in the array. The thing is to quickly check up that whether that person is in the list or not . So , we can make a separate dictionary to check the person included in the formed list/result or not .
+
+
+The core idea or intuition behind the solution is to try out everypossible person that has the required skills and take the minimum out of them and return the formed result .We can also prune the backtracking.
+
+
+This is giving the right solution but the issue is that , it is giving TLE .So , the optimized solution/algorithm is usind the idea of bitmasking and dp
+
+
+Intuition
+
+Let n be the number of people and m be the number of required skills. 
+In this problem,m is very small -up to 16. It alluds to the track which skills have been covered so far, which is possible to do efficiently with a bitmask.
+
+First, let's make our lives easier by dealing with indices instead of strings for the required skills.We use a hash map skillId that keeps the index for each skill. We initialize skillId[req_skills[i]]=i for all i from 0 to m-1
+
+Now, when each skill has its number, we can represent every set of skills with a bitmask- an integer between 0 and 2^m-1. If the i'th bits is 1, element i belongs to the set . Otherwise , it does not.
+For example 101111 represents the set(0,1,2,3,5}
+
+
+The problem asks to find the smallest team such that the union of the skill sets of its members is the set of all required skills {0,1,2....m-1}
+
+One can reformulate the statement in terms of bitmasks: we need to find the smallest team such that the bitwise OR of the bitmaskes representing the skill sets of its members is 2^m-1 (which is the representation of all the skills from 0 to m-1)
+
+
+We will solve this problem using dynamic programming. Let dp[skillMask] be a bitmask representing the smallest team that possesses all the skills from the skillsMask. The value of dp[skillsMask] is a bitmask that represents the set of team members.
+
+We are using bitmasks to represent skillsMask, but we can also use bitmasks to represent a set of people.skillsMask represent the set of people.skillsMask represent the set of people is on the team.
+
+The base case of this dynamic programming(DP) problem is when skiilsMask=9, which represents an empty set of skills.When no skills are required, we can form an empty team and this , we set dp[0]=0 bitmask represent an empty set of people.
+
+Now we need to write down the transisitions of this DP.
+
+For a given skillsMask!=0, there must be atleast one person in a team.Since, we need to find the minimal team, we initialize dp[skillsMask] with a large value float('inf') . Then we iterate over all people and for each person, try to update dp[skillMask] with a team containing this person.
+
+The i'th person or at least one other team member must possess the skills in skillsMask.
+
+
+
+Let skillsMaskOfPerson[i] denote the bitmask representing the skills set of the i'th person. We can precompute this to make the algorithm more efficient.
+
+
+To summarize , we have 3 types of bitmasks. First, the keys to dp, which is skillsMask. This represents the set of skills that a team covers. Next, the dp values represent a set of people on a team. Finally, we are using skillsMaskOfPerson to represent the skills that a given person possesses, which is given in the input - we just need to convert it using skillId, which we defined at the start.
+
+Although the other team memebrs may possess the skills from skillsMaskOfPerson[i], it is not necessary.However, they must have the skills from skillsMask that are not present in skillsMaskOfPerson[i].
+
+The set smallerSkillsMask = skillsMask\skillsMaskOfPerson[i], where \ denotes the set difference, contains the required skills that the i'th person does not possess. The other team members must possess these skills.
+
+In a code, a net trick to calculate smallerSkillsMask is skills_mask & ~skills_mask_of_person[i]. Alternatively , one could calculate it manually by checking each bit one by one, but this trick is cleaner . 
+
+We will update dp[skillsMask] with the bitmask dp[smallerSkillsMask] OR 2^i-- add the ith person to the team and cover the remaining skills with the smallest possible set of people, which is defined as dp[smallerSkillsMask]. This update only makes sense if smallerSkillsMask != skillsMask because otherwise , the i'th person would not contribute any new skills to the team.
+
+The answer to the problem is dp[2^m-1] - the smallest team that possesses all the required skills.
+
+
+
+
+Algorithm 
+
+1. Set n to the number of people
+2. Set m to the number of required skills.
+3. Declare the hash map skillId.
+4. Iterate i from 0 to m-1.
+     >Set skillId[req_skills[i]]=i
+     
+5. Declare and initialize the array skillsMaskOfPerson.
+
+6. Iterate i from 0 to n-1.
+  >Iterate skill over people[i]
+     >Set the bit skillId[skill] in the bitmask skillsMaskOfPerson[i]
+     
+7. Declare the array of dp of size 2^m and initialize it with values of 2^n-1.
+
+8.Set dp[0]=0 (The Base Case of the DP)
+
+9. Iterate the skillsMask from 1 to 2^m-1 .
+   >Iterate i from 0 to n-1
+    >Set smallerSkillsMask = skillsMask\ skillsMaskOfPerson[i]
+    >If the smallerSkillsMask != skillsMask.
+      > Set peopleMask to dp[smallerSkillsMask] OR 2^i. This is the mask that represents the new team 	
+      	once you add the current person.
+      >Update dp[skillsMask] with the peopleMask, if it is better (has fewer bits set).
+      
+10. Return the array containing the elements from the bitmask dp[2^m -1]
+
+
+
+
+
+
+
+
+
+
+
+
